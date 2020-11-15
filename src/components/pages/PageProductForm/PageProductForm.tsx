@@ -1,14 +1,14 @@
-import React, {useEffect, useState} from 'react';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
-import {Product, ProductSchema} from "models/Product";
-import {Formik, Field, FormikProps, FormikValues} from 'formik';
-import {TextField} from 'formik-material-ui';
-import axios from 'axios';
-import {useHistory, useParams} from 'react-router-dom';
-import PaperLayout from "components/PaperLayout/PaperLayout";
 import Typography from "@material-ui/core/Typography";
+import axios from 'axios';
+import PaperLayout from "components/PaperLayout/PaperLayout";
 import API_PATHS from "constants/apiPaths";
+import { Field, Formik, FormikProps, FormikValues } from 'formik';
+import { TextField } from 'formik-material-ui';
+import { Product, ProductSchema } from "models/Product";
+import React, { useEffect, useState } from 'react';
+import { useHistory, useParams } from 'react-router-dom';
 
 const Form = (props: FormikProps<FormikValues>) => {
   const {
@@ -108,9 +108,15 @@ export default function PageProductForm() {
 
   const onSubmit = (values: FormikValues) => {
     const formattedValues = ProductSchema.cast(values);
-    const productToSave = id ? {...ProductSchema.cast(formattedValues), id} : formattedValues;
-    axios.put(`${API_PATHS.bff}/product`, productToSave)
-      .then(() => history.push('/admin/products'));
+    if (id) {
+      const productToSave = { ...ProductSchema.cast(formattedValues), id };
+      axios.put(`${API_PATHS.product}/products`, productToSave)
+        .then(() => history.push('/admin/products'));
+    } else {
+      const productToSave = formattedValues;
+      axios.post(`${API_PATHS.product}/products`, productToSave)
+        .then(() => history.push('/admin/products'));
+    }
   };
 
   useEffect(() => {
@@ -118,7 +124,7 @@ export default function PageProductForm() {
       setIsLoading(false);
       return;
     }
-    axios.get(`${API_PATHS.bff}/product/${id}`)
+    axios.get(`${API_PATHS.product}/products/${id}`)
       .then(res => {
         setProduct(res.data);
         setIsLoading(false);
